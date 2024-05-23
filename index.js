@@ -3,14 +3,33 @@ const readline = require('readline');
 // Define the Shape class
 class Shape {
     constructor(shape, char, alignment, rows, columns = rows) {
+        if (!this.isValidShape(shape)) {
+            throw new Error(`Invalid shape '${shape}'. Valid shapes are: rectangle, triangle, square.`);
+        }
+
+        if (!this.isValidAlignment(alignment)) {
+            throw new Error(`Invalid alignment '${alignment}'. Valid alignments are: left, right, center.`);
+        }
+
         this.alignment = alignment;
         this.rows = rows;
         this.columns = columns;
         this.shape = shape;
         this.char = char;
-        if ((this.shape === 'Square' && this.rows !== this.columns )|| (this.shape === 'triangle'&& this.rows*2-1 !== this.columns) ) {
-            return console.log({ error: `Not possible to make perfect ${this.shape}. Please make sure row and columns are equal. for perfect tirangle: column=row*2-1 and for square: row=column` });
+
+        if ((this.shape === 'square' && this.rows !== this.columns) || (this.shape === 'triangle' && this.rows * 2 - 1 !== this.columns)) {
+            throw new Error(`Not possible to make perfect ${this.shape}. Please make sure row and columns are equal. For perfect triangle: column = row * 2 - 1 and for square: row = column.`);
         }
+    }
+
+    isValidShape(shape) {
+        const validShapes = ['rectangle', 'triangle', 'square'];
+        return validShapes.includes(shape.toLowerCase());
+    }
+
+    isValidAlignment(alignment) {
+        const validAlignments = ['left', 'right', 'center'];
+        return validAlignments.includes(alignment.toLowerCase());
     }
 
     draw() {
@@ -116,8 +135,12 @@ const rl = readline.createInterface({
 
 rl.question('Enter your inputs in order shape, character to draw with, alignment (left, right, center), rows, columns separated by space: ', (input) => {
     const [shape, char, alignment, rows, columns] = input.split(" ");
-    const drawer = new Shape(shape, char, alignment, parseInt(rows), parseInt(columns));
-    drawer.draw();
+    try {
+        const drawer = new Shape(shape, char, alignment, parseInt(rows), parseInt(columns));
+        drawer.draw();
+    } catch (error) {
+        console.error(error.message);
+    }
     rl.close();
 });
 
